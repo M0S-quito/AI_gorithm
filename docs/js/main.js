@@ -134,6 +134,7 @@ document.getElementById('algorithm-select').addEventListener('change', (e) => {
     } else if (val === 'quick') {
         displayCode(quickSort);
     }
+    startVisualization();
 });
 
 // Initial state
