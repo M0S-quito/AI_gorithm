@@ -20,17 +20,24 @@ function renderArray(arr, activeIndices=[]) {
     });
 }
 
+let stopSort = false;
+let currentArray = [];
+
 async function bubbleSort(arr) {
     for (let i = 0; i < arr.length - 1; i++) {
         for (let j = 0; j < arr.length - i - 1; j++) {
+            if (stopSort) return;
             renderArray(arr, [j, j + 1]);
             await sleep(200);
+            if (stopSort) return;
             if (arr[j] > arr[j + 1]) {
                 [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
             }
         }
     }
-    renderArray(arr);
+    if (!stopSort) {
+        renderArray(arr);
+    }
 }
 
 async function insertionSort(arr) {
@@ -38,22 +45,28 @@ async function insertionSort(arr) {
         let key = arr[i];
         let j = i - 1;
         while (j >= 0 && arr[j] > key) {
+            if (stopSort) return;
             arr[j + 1] = arr[j];
             renderArray(arr, [j, i]);
             await sleep(200);
+            if (stopSort) return;
             j--;
         }
         arr[j + 1] = key;
     }
-    renderArray(arr);
+    if (!stopSort) {
+        renderArray(arr);
+    }
 }
 
 async function selectionSort(arr) {
     for (let i = 0; i < arr.length - 1; i++) {
         let minIndex = i;
         for (let j = i + 1; j < arr.length; j++) {
+            if (stopSort) return;
             renderArray(arr, [minIndex, j]);
             await sleep(200);
+            if (stopSort) return;
             if (arr[j] < arr[minIndex]) {
                 minIndex = j;
             }
@@ -62,17 +75,20 @@ async function selectionSort(arr) {
             [arr[i], arr[minIndex]] = [arr[minIndex], arr[i]];
         }
     }
-    renderArray(arr);
+    if (!stopSort) {
+        renderArray(arr);
+    }
 }
 
 async function quickSort(arr, left = 0, right = arr.length - 1) {
+    if (stopSort) return;
     if (left >= right) {
         return;
     }
     const pivotIndex = await partition(arr, left, right);
     await quickSort(arr, left, pivotIndex - 1);
     await quickSort(arr, pivotIndex + 1, right);
-    if (left === 0 && right === arr.length - 1) {
+    if (!stopSort && left === 0 && right === arr.length - 1) {
         renderArray(arr);
     }
 }
@@ -81,8 +97,10 @@ async function partition(arr, left, right) {
     const pivot = arr[right];
     let i = left;
     for (let j = left; j < right; j++) {
+        if (stopSort) return i;
         renderArray(arr, [j, right, i]);
         await sleep(200);
+        if (stopSort) return i;
         if (arr[j] < pivot) {
             [arr[i], arr[j]] = [arr[j], arr[i]];
             i++;
@@ -98,21 +116,24 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function startVisualization() {
+async function startVisualization() {
+    stopSort = true;
+    await sleep(0); // allow any running sort to terminate
+    stopSort = false;
     const algorithm = document.getElementById('algorithm-select').value;
-    const arr = generateArray();
-    renderArray(arr);
+    currentArray = generateArray();
+    renderArray(currentArray);
     if (algorithm === 'bubble') {
-        bubbleSort(arr);
+        bubbleSort(currentArray);
         displayCode(bubbleSort);
     } else if (algorithm === 'insertion') {
-        insertionSort(arr);
+        insertionSort(currentArray);
         displayCode(insertionSort);
     } else if (algorithm === 'selection') {
-        selectionSort(arr);
+        selectionSort(currentArray);
         displayCode(selectionSort);
     } else if (algorithm === 'quick') {
-        quickSort(arr);
+        quickSort(currentArray);
         displayCode(quickSort);
     }
 }
@@ -127,6 +148,7 @@ function displayCode(fn) {
 }
 
 document.getElementById('algorithm-select').addEventListener('change', (e) => {
+    stopSort = true; // stop any running sort
     const val = e.target.value;
     if (val === 'bubble') {
         displayCode(bubbleSort);
@@ -137,9 +159,10 @@ document.getElementById('algorithm-select').addEventListener('change', (e) => {
     } else if (val === 'quick') {
         displayCode(quickSort);
     }
-    startVisualization();
+    // do not automatically start sorting
 });
 
 // Initial state
-renderArray(generateArray());
+currentArray = generateArray();
+renderArray(currentArray);
 displayCode(bubbleSort);
