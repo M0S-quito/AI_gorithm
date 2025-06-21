@@ -33,6 +33,38 @@ async function bubbleSort(arr) {
     renderArray(arr);
 }
 
+async function insertionSort(arr) {
+    for (let i = 1; i < arr.length; i++) {
+        let key = arr[i];
+        let j = i - 1;
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            renderArray(arr, [j, i]);
+            await sleep(200);
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+    renderArray(arr);
+}
+
+async function selectionSort(arr) {
+    for (let i = 0; i < arr.length - 1; i++) {
+        let minIndex = i;
+        for (let j = i + 1; j < arr.length; j++) {
+            renderArray(arr, [minIndex, j]);
+            await sleep(200);
+            if (arr[j] < arr[minIndex]) {
+                minIndex = j;
+            }
+        }
+        if (minIndex !== i) {
+            [arr[i], arr[minIndex]] = [arr[minIndex], arr[i]];
+        }
+    }
+    renderArray(arr);
+}
+
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -43,10 +75,36 @@ function startVisualization() {
     renderArray(arr);
     if (algorithm === 'bubble') {
         bubbleSort(arr);
+        displayCode(bubbleSort);
+    } else if (algorithm === 'insertion') {
+        insertionSort(arr);
+        displayCode(insertionSort);
+    } else if (algorithm === 'selection') {
+        selectionSort(arr);
+        displayCode(selectionSort);
     }
 }
 
 document.getElementById('start-btn').addEventListener('click', startVisualization);
 
+function displayCode(fn) {
+    const pre = document.getElementById('code-display');
+    if (pre) {
+        pre.textContent = fn.toString();
+    }
+}
+
+document.getElementById('algorithm-select').addEventListener('change', (e) => {
+    const val = e.target.value;
+    if (val === 'bubble') {
+        displayCode(bubbleSort);
+    } else if (val === 'insertion') {
+        displayCode(insertionSort);
+    } else if (val === 'selection') {
+        displayCode(selectionSort);
+    }
+});
+
 // Initial state
 renderArray(generateArray());
+displayCode(bubbleSort);

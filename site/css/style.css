@@ -31,3 +31,12 @@ header {
 .bar.active {
     background: orange;
 }
+
+.code {
+    background: #272822;
+    color: #f8f8f2;
+    padding: 1rem;
+    margin: 1rem;
+    overflow-x: auto;
+    white-space: pre;
+}
