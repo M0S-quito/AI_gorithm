@@ -72,6 +72,9 @@ async function quickSort(arr, left = 0, right = arr.length - 1) {
     const pivotIndex = await partition(arr, left, right);
     await quickSort(arr, left, pivotIndex - 1);
     await quickSort(arr, pivotIndex + 1, right);
+    if (left === 0 && right === arr.length - 1) {
+        renderArray(arr);
+    }
 }
 
 async function partition(arr, left, right) {
