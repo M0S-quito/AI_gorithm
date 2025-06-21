@@ -65,6 +65,32 @@ async function selectionSort(arr) {
     renderArray(arr);
 }
 
+async function quickSort(arr, left = 0, right = arr.length - 1) {
+    if (left >= right) {
+        return;
+    }
+    const pivotIndex = await partition(arr, left, right);
+    await quickSort(arr, left, pivotIndex - 1);
+    await quickSort(arr, pivotIndex + 1, right);
+}
+
+async function partition(arr, left, right) {
+    const pivot = arr[right];
+    let i = left;
+    for (let j = left; j < right; j++) {
+        renderArray(arr, [j, right, i]);
+        await sleep(200);
+        if (arr[j] < pivot) {
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+            i++;
+        }
+    }
+    [arr[i], arr[right]] = [arr[right], arr[i]];
+    renderArray(arr);
+    await sleep(200);
+    return i;
+}
+
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -82,6 +108,9 @@ function startVisualization() {
     } else if (algorithm === 'selection') {
         selectionSort(arr);
         displayCode(selectionSort);
+    } else if (algorithm === 'quick') {
+        quickSort(arr);
+        displayCode(quickSort);
     }
 }
 
@@ -102,6 +131,8 @@ document.getElementById('algorithm-select').addEventListener('change', (e) => {
         displayCode(insertionSort);
     } else if (val === 'selection') {
         displayCode(selectionSort);
+    } else if (val === 'quick') {
+        displayCode(quickSort);
     }
 });
 

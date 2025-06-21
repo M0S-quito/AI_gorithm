@@ -1,7 +1,7 @@
 # AI_gorithm
 
-This repository hosts a simple web-based algorithm visualizer. The static files live in the `docs` directory so GitHub Pages can serve them. A copy is also kept in the original `site` directory. Initially, only a bubble sort visualization was provided. Now insertion and selection sort examples are available, and the site displays the JavaScript code for the selected algorithm.
+이 저장소는 간단한 웹 기반 알고리즘 시각화 도구를 제공합니다. GitHub Pages에서 서비스되는 정적 파일은 `docs` 디렉터리에 있으며, 원본 `site` 디렉터리에도 동일한 사본이 있습니다. 처음에는 버블 정렬만 제공되었지만 이제 삽입 정렬, 선택 정렬, 퀵 정렬 예제가 추가되었고 선택한 알고리즘의 JavaScript 코드도 화면에 표시됩니다.
 
-## Running
+## 실행 방법
 
-Open `docs/index.html` (or `site/index.html`) in your browser. Select an algorithm and press **Start** to see the visualization.
+브라우저에서 `docs/index.html`(또는 `site/index.html`)을 열고 알고리즘을 선택한 다음 **Start** 버튼을 누르면 시각화를 확인할 수 있습니다.
