@@ -1,0 +1,33 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f0f0f0;
+}
+header {
+    background: #333;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+}
+.controls {
+    margin: 1rem;
+}
+.visualization {
+    display: flex;
+    align-items: flex-end;
+    height: 300px;
+    margin: 1rem;
+    background: white;
+    border: 1px solid #ccc;
+    padding: 1rem;
+}
+.bar {
+    width: 20px;
+    margin: 0 2px;
+    background: steelblue;
+    transition: background 0.2s;
+}
+.bar.active {
+    background: orange;
+}
