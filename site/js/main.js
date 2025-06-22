@@ -6,15 +6,26 @@ function generateArray(size = 20) {
     return arr;
 }
 
-function renderArray(arr, activeIndices=[]) {
+let currentMode = 'sort';
+
+function renderArray(arr, activeIndices=[], foundIndex=null) {
     const container = document.getElementById('visualization');
     container.innerHTML = '';
     arr.forEach((value, index) => {
         const bar = document.createElement('div');
         bar.className = 'bar';
         bar.style.height = value * 2 + 'px';
+        if (currentMode === 'search') {
+            const label = document.createElement('span');
+            label.className = 'label';
+            label.textContent = value;
+            bar.appendChild(label);
+        }
         if (activeIndices.includes(index)) {
             bar.classList.add('active');
+        }
+        if (foundIndex !== null && index === foundIndex) {
+            bar.classList.add('found');
         }
         container.appendChild(bar);
     });
@@ -204,9 +215,12 @@ async function linearSearch(arr, target) {
         renderArray(arr, [i]);
         await sleep(200);
         if (arr[i] === target) {
+            renderArray(arr, [], i);
+            showResult(`Found at index ${i}`);
             return i;
         }
     }
+    showResult('Not found');
     return -1;
 }
 
@@ -219,6 +233,8 @@ async function binarySearch(arr, target) {
         renderArray(arr, [mid]);
         await sleep(200);
         if (arr[mid] === target) {
+            renderArray(arr, [], mid);
+            showResult(`Found at index ${mid}`);
             return mid;
         } else if (arr[mid] < target) {
             left = mid + 1;
@@ -226,6 +242,7 @@ async function binarySearch(arr, target) {
             right = mid - 1;
         }
     }
+    showResult('Not found');
     return -1;
 }
 
@@ -238,7 +255,9 @@ async function startVisualization() {
     await sleep(0); // allow any running sort to terminate
     stopSort = false;
     const mode = document.getElementById('mode-select').value;
+    currentMode = mode;
     const algorithm = document.getElementById('algorithm-select').value;
+    showResult('');
     currentArray = generateArray();
     if (mode === 'search' && algorithm === 'binary') {
         currentArray.sort((a, b) => a - b);
@@ -289,6 +308,13 @@ function displayCode(fn) {
     }
 }
 
+function showResult(message) {
+    const div = document.getElementById('result');
+    if (div) {
+        div.textContent = message;
+    }
+}
+
 document.getElementById('algorithm-select').addEventListener('change', (e) => {
     stopSort = true; // stop any running sort
     const mode = document.getElementById('mode-select').value;
@@ -318,6 +344,7 @@ document.getElementById('algorithm-select').addEventListener('change', (e) => {
 });
 
 function updateAlgorithmOptions(mode) {
+    currentMode = mode;
     const select = document.getElementById('algorithm-select');
     select.innerHTML = '';
     const options = mode === 'sort' ? sortOptions : searchOptions;
