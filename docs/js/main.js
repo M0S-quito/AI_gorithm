@@ -93,6 +93,79 @@ async function quickSort(arr, left = 0, right = arr.length - 1) {
     }
 }
 
+async function merge(arr, left, mid, right) {
+    const leftArr = arr.slice(left, mid + 1);
+    const rightArr = arr.slice(mid + 1, right + 1);
+    let i = 0, j = 0, k = left;
+    while (i < leftArr.length && j < rightArr.length) {
+        if (stopSort) return;
+        if (leftArr[i] <= rightArr[j]) {
+            arr[k++] = leftArr[i++];
+        } else {
+            arr[k++] = rightArr[j++];
+        }
+        renderArray(arr, [k - 1]);
+        await sleep(200);
+    }
+    while (i < leftArr.length) {
+        if (stopSort) return;
+        arr[k++] = leftArr[i++];
+        renderArray(arr, [k - 1]);
+        await sleep(200);
+    }
+    while (j < rightArr.length) {
+        if (stopSort) return;
+        arr[k++] = rightArr[j++];
+        renderArray(arr, [k - 1]);
+        await sleep(200);
+    }
+}
+
+async function mergeSort(arr, left = 0, right = arr.length - 1) {
+    if (stopSort) return;
+    if (left >= right) return;
+    const mid = Math.floor((left + right) / 2);
+    await mergeSort(arr, left, mid);
+    await mergeSort(arr, mid + 1, right);
+    await merge(arr, left, mid, right);
+    if (!stopSort && left === 0 && right === arr.length - 1) {
+        renderArray(arr);
+    }
+}
+
+async function heapify(arr, n, i) {
+    let largest = i;
+    const l = 2 * i + 1;
+    const r = 2 * i + 2;
+    if (l < n && arr[l] > arr[largest]) largest = l;
+    if (r < n && arr[r] > arr[largest]) largest = r;
+    if (largest !== i) {
+        if (stopSort) return;
+        [arr[i], arr[largest]] = [arr[largest], arr[i]];
+        renderArray(arr, [i, largest]);
+        await sleep(200);
+        await heapify(arr, n, largest);
+    }
+}
+
+async function heapSort(arr) {
+    const n = arr.length;
+    for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+        await heapify(arr, n, i);
+        if (stopSort) return;
+    }
+    for (let i = n - 1; i > 0; i--) {
+        if (stopSort) return;
+        [arr[0], arr[i]] = [arr[i], arr[0]];
+        renderArray(arr, [0, i]);
+        await sleep(200);
+        await heapify(arr, i, 0);
+    }
+    if (!stopSort) {
+        renderArray(arr);
+    }
+}
+
 async function partition(arr, left, right) {
     const pivot = arr[right];
     let i = left;
@@ -135,6 +208,12 @@ async function startVisualization() {
     } else if (algorithm === 'quick') {
         quickSort(currentArray);
         displayCode(quickSort);
+    } else if (algorithm === 'merge') {
+        mergeSort(currentArray);
+        displayCode(mergeSort);
+    } else if (algorithm === 'heap') {
+        heapSort(currentArray);
+        displayCode(heapSort);
     }
 }
 
@@ -158,6 +237,10 @@ document.getElementById('algorithm-select').addEventListener('change', (e) => {
         displayCode(selectionSort);
     } else if (val === 'quick') {
         displayCode(quickSort);
+    } else if (val === 'merge') {
+        displayCode(mergeSort);
+    } else if (val === 'heap') {
+        displayCode(heapSort);
     }
     // do not automatically start sorting
 });
