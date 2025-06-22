@@ -27,9 +27,21 @@ header {
     margin: 0 2px;
     background: steelblue;
     transition: background 0.2s;
+    position: relative;
 }
 .bar.active {
     background: orange;
+}
+.bar.found {
+    background: green;
+}
+.bar .label {
+    position: absolute;
+    top: -20px;
+    width: 100%;
+    text-align: center;
+    font-size: 12px;
+    color: #333;
 }
 
 .code {
@@ -39,4 +51,8 @@ header {
     margin: 1rem;
     overflow-x: auto;
     white-space: pre;
+}
+.result {
+    margin: 1rem;
+    font-weight: bold;
 }
