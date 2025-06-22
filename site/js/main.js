@@ -22,6 +22,19 @@ function renderArray(arr, activeIndices=[]) {
 
 let stopSort = false;
 let currentArray = [];
+const sortOptions = {
+    bubble: 'Bubble Sort',
+    insertion: 'Insertion Sort',
+    selection: 'Selection Sort',
+    quick: 'Quick Sort',
+    merge: 'Merge Sort',
+    heap: 'Heap Sort'
+};
+
+const searchOptions = {
+    linear: 'Linear Search',
+    binary: 'Binary Search'
+};
 
 async function bubbleSort(arr) {
     for (let i = 0; i < arr.length - 1; i++) {
@@ -185,6 +198,37 @@ async function partition(arr, left, right) {
     return i;
 }
 
+async function linearSearch(arr, target) {
+    for (let i = 0; i < arr.length; i++) {
+        if (stopSort) return -1;
+        renderArray(arr, [i]);
+        await sleep(200);
+        if (arr[i] === target) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+async function binarySearch(arr, target) {
+    let left = 0;
+    let right = arr.length - 1;
+    while (left <= right) {
+        if (stopSort) return -1;
+        const mid = Math.floor((left + right) / 2);
+        renderArray(arr, [mid]);
+        await sleep(200);
+        if (arr[mid] === target) {
+            return mid;
+        } else if (arr[mid] < target) {
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+    return -1;
+}
+
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -193,27 +237,46 @@ async function startVisualization() {
     stopSort = true;
     await sleep(0); // allow any running sort to terminate
     stopSort = false;
+    const mode = document.getElementById('mode-select').value;
     const algorithm = document.getElementById('algorithm-select').value;
     currentArray = generateArray();
+    if (mode === 'search' && algorithm === 'binary') {
+        currentArray.sort((a, b) => a - b);
+    }
     renderArray(currentArray);
-    if (algorithm === 'bubble') {
-        bubbleSort(currentArray);
-        displayCode(bubbleSort);
-    } else if (algorithm === 'insertion') {
-        insertionSort(currentArray);
-        displayCode(insertionSort);
-    } else if (algorithm === 'selection') {
-        selectionSort(currentArray);
-        displayCode(selectionSort);
-    } else if (algorithm === 'quick') {
-        quickSort(currentArray);
-        displayCode(quickSort);
-    } else if (algorithm === 'merge') {
-        mergeSort(currentArray);
-        displayCode(mergeSort);
-    } else if (algorithm === 'heap') {
-        heapSort(currentArray);
-        displayCode(heapSort);
+    if (mode === 'sort') {
+        if (algorithm === 'bubble') {
+            bubbleSort(currentArray);
+            displayCode(bubbleSort);
+        } else if (algorithm === 'insertion') {
+            insertionSort(currentArray);
+            displayCode(insertionSort);
+        } else if (algorithm === 'selection') {
+            selectionSort(currentArray);
+            displayCode(selectionSort);
+        } else if (algorithm === 'quick') {
+            quickSort(currentArray);
+            displayCode(quickSort);
+        } else if (algorithm === 'merge') {
+            mergeSort(currentArray);
+            displayCode(mergeSort);
+        } else if (algorithm === 'heap') {
+            heapSort(currentArray);
+            displayCode(heapSort);
+        }
+    } else if (mode === 'search') {
+        const target = parseInt(document.getElementById('search-target').value, 10);
+        if (isNaN(target)) {
+            alert('Enter a target value');
+            return;
+        }
+        if (algorithm === 'linear') {
+            linearSearch(currentArray, target);
+            displayCode(linearSearch);
+        } else if (algorithm === 'binary') {
+            binarySearch(currentArray, target);
+            displayCode(binarySearch);
+        }
     }
 }
 
@@ -228,24 +291,52 @@ function displayCode(fn) {
 
 document.getElementById('algorithm-select').addEventListener('change', (e) => {
     stopSort = true; // stop any running sort
+    const mode = document.getElementById('mode-select').value;
     const val = e.target.value;
-    if (val === 'bubble') {
-        displayCode(bubbleSort);
-    } else if (val === 'insertion') {
-        displayCode(insertionSort);
-    } else if (val === 'selection') {
-        displayCode(selectionSort);
-    } else if (val === 'quick') {
-        displayCode(quickSort);
-    } else if (val === 'merge') {
-        displayCode(mergeSort);
-    } else if (val === 'heap') {
-        displayCode(heapSort);
+    if (mode === 'sort') {
+        if (val === 'bubble') {
+            displayCode(bubbleSort);
+        } else if (val === 'insertion') {
+            displayCode(insertionSort);
+        } else if (val === 'selection') {
+            displayCode(selectionSort);
+        } else if (val === 'quick') {
+            displayCode(quickSort);
+        } else if (val === 'merge') {
+            displayCode(mergeSort);
+        } else if (val === 'heap') {
+            displayCode(heapSort);
+        }
+    } else if (mode === 'search') {
+        if (val === 'linear') {
+            displayCode(linearSearch);
+        } else if (val === 'binary') {
+            displayCode(binarySearch);
+        }
     }
     // do not automatically start sorting
 });
 
+function updateAlgorithmOptions(mode) {
+    const select = document.getElementById('algorithm-select');
+    select.innerHTML = '';
+    const options = mode === 'sort' ? sortOptions : searchOptions;
+    Object.entries(options).forEach(([value, text]) => {
+        const opt = document.createElement('option');
+        opt.value = value;
+        opt.textContent = text;
+        select.appendChild(opt);
+    });
+    displayCode(mode === 'sort' ? bubbleSort : linearSearch);
+    document.getElementById('search-target').style.display = mode === 'search' ? 'inline-block' : 'none';
+}
+
+document.getElementById('mode-select').addEventListener('change', (e) => {
+    stopSort = true;
+    updateAlgorithmOptions(e.target.value);
+});
+
 // Initial state
+updateAlgorithmOptions('sort');
 currentArray = generateArray();
 renderArray(currentArray);
-displayCode(bubbleSort);

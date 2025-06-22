@@ -12,6 +12,11 @@
     </header>
     <main>
         <div class="controls">
+            <label for="mode-select">Mode:</label>
+            <select id="mode-select">
+                <option value="sort">Sort</option>
+                <option value="search">Search</option>
+            </select>
             <label for="algorithm-select">Choose Algorithm:</label>
             <select id="algorithm-select">
                 <option value="bubble">Bubble Sort</option>
@@ -21,6 +26,7 @@
                 <option value="merge">Merge Sort</option>
                 <option value="heap">Heap Sort</option>
             </select>
+            <input type="number" id="search-target" placeholder="Search target" style="display:none;" />
             <button id="start-btn">Start</button>
         </div>
         <div id="visualization" class="visualization"></div>
