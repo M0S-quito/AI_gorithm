@@ -62,28 +62,36 @@ function generateTree(size = 7) {
     return arr;
 }
 
+function buildTree(arr, index, activeIndices, foundIndex) {
+    if (index >= arr.length) return null;
+    const li = document.createElement('li');
+    const node = document.createElement('div');
+    node.className = 'node';
+    node.textContent = arr[index];
+    if (activeIndices.includes(index)) node.classList.add('active');
+    if (foundIndex !== null && index === foundIndex) node.classList.add('found');
+    li.appendChild(node);
+    const left = 2 * index + 1;
+    const right = 2 * index + 2;
+    if (left < arr.length || right < arr.length) {
+        const ul = document.createElement('ul');
+        const leftChild = buildTree(arr, left, activeIndices, foundIndex);
+        if (leftChild) ul.appendChild(leftChild);
+        const rightChild = buildTree(arr, right, activeIndices, foundIndex);
+        if (rightChild) ul.appendChild(rightChild);
+        li.appendChild(ul);
+    }
+    return li;
+}
+
 function renderTree(arr, activeIndices = [], foundIndex = null) {
     const container = document.getElementById('visualization');
     container.className = 'visualization tree';
     container.innerHTML = '';
-    let level = 0;
-    let count = 0;
-    while (count < arr.length) {
-        const levelDiv = document.createElement('div');
-        levelDiv.className = 'level';
-        const nodesInLevel = Math.pow(2, level);
-        for (let i = 0; i < nodesInLevel && count < arr.length; i++) {
-            const node = document.createElement('div');
-            node.className = 'node';
-            node.textContent = arr[count];
-            if (activeIndices.includes(count)) node.classList.add('active');
-            if (foundIndex !== null && count === foundIndex) node.classList.add('found');
-            levelDiv.appendChild(node);
-            count++;
-        }
-        container.appendChild(levelDiv);
-        level++;
-    }
+    if (arr.length === 0) return;
+    const ul = document.createElement('ul');
+    ul.appendChild(buildTree(arr, 0, activeIndices, foundIndex));
+    container.appendChild(ul);
 }
 
 async function bfsTraversal(tree) {
