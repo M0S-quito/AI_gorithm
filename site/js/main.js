@@ -10,6 +10,7 @@ let currentMode = 'sort';
 
 function renderArray(arr, activeIndices=[], foundIndex=null) {
     const container = document.getElementById('visualization');
+    container.className = 'visualization';
     container.innerHTML = '';
     arr.forEach((value, index) => {
         const bar = document.createElement('div');
@@ -46,6 +47,68 @@ const searchOptions = {
     linear: 'Linear Search',
     binary: 'Binary Search'
 };
+
+let currentTree = [];
+const treeOptions = {
+    bfs: 'BFS Traversal',
+    dfs: 'DFS Preorder'
+};
+
+function generateTree(size = 7) {
+    const arr = [];
+    for (let i = 0; i < size; i++) {
+        arr.push(Math.floor(Math.random() * 100) + 1);
+    }
+    return arr;
+}
+
+function renderTree(arr, activeIndices = [], foundIndex = null) {
+    const container = document.getElementById('visualization');
+    container.className = 'visualization tree';
+    container.innerHTML = '';
+    let level = 0;
+    let count = 0;
+    while (count < arr.length) {
+        const levelDiv = document.createElement('div');
+        levelDiv.className = 'level';
+        const nodesInLevel = Math.pow(2, level);
+        for (let i = 0; i < nodesInLevel && count < arr.length; i++) {
+            const node = document.createElement('div');
+            node.className = 'node';
+            node.textContent = arr[count];
+            if (activeIndices.includes(count)) node.classList.add('active');
+            if (foundIndex !== null && count === foundIndex) node.classList.add('found');
+            levelDiv.appendChild(node);
+            count++;
+        }
+        container.appendChild(levelDiv);
+        level++;
+    }
+}
+
+async function bfsTraversal(tree) {
+    const queue = [0];
+    while (queue.length > 0) {
+        if (stopSort) return;
+        const index = queue.shift();
+        renderTree(tree, [index]);
+        await sleep(500);
+        const left = 2 * index + 1;
+        const right = 2 * index + 2;
+        if (left < tree.length) queue.push(left);
+        if (right < tree.length) queue.push(right);
+    }
+    renderTree(tree);
+}
+
+async function dfsPreorder(tree, index = 0) {
+    if (stopSort || index >= tree.length) return;
+    renderTree(tree, [index]);
+    await sleep(500);
+    await dfsPreorder(tree, 2 * index + 1);
+    await dfsPreorder(tree, 2 * index + 2);
+    if (index === 0) renderTree(tree);
+}
 
 async function bubbleSort(arr) {
     for (let i = 0; i < arr.length - 1; i++) {
@@ -262,7 +325,12 @@ async function startVisualization() {
     if (mode === 'search' && algorithm === 'binary') {
         currentArray.sort((a, b) => a - b);
     }
-    renderArray(currentArray);
+    if (mode === 'tree') {
+        currentTree = generateTree();
+        renderTree(currentTree);
+    } else {
+        renderArray(currentArray);
+    }
     if (mode === 'sort') {
         if (algorithm === 'bubble') {
             bubbleSort(currentArray);
@@ -295,6 +363,14 @@ async function startVisualization() {
         } else if (algorithm === 'binary') {
             binarySearch(currentArray, target);
             displayCode(binarySearch);
+        }
+    } else if (mode === 'tree') {
+        if (algorithm === 'bfs') {
+            bfsTraversal(currentTree);
+            displayCode(bfsTraversal);
+        } else if (algorithm === 'dfs') {
+            dfsPreorder(currentTree);
+            displayCode(dfsPreorder);
         }
     }
 }
@@ -339,6 +415,12 @@ document.getElementById('algorithm-select').addEventListener('change', (e) => {
         } else if (val === 'binary') {
             displayCode(binarySearch);
         }
+    } else if (mode === 'tree') {
+        if (val === 'bfs') {
+            displayCode(bfsTraversal);
+        } else if (val === 'dfs') {
+            displayCode(dfsPreorder);
+        }
     }
     // do not automatically start sorting
 });
@@ -347,14 +429,20 @@ function updateAlgorithmOptions(mode) {
     currentMode = mode;
     const select = document.getElementById('algorithm-select');
     select.innerHTML = '';
-    const options = mode === 'sort' ? sortOptions : searchOptions;
+    const options = mode === 'sort' ? sortOptions : mode === 'search' ? searchOptions : treeOptions;
     Object.entries(options).forEach(([value, text]) => {
         const opt = document.createElement('option');
         opt.value = value;
         opt.textContent = text;
         select.appendChild(opt);
     });
-    displayCode(mode === 'sort' ? bubbleSort : linearSearch);
+    if (mode === 'sort') {
+        displayCode(bubbleSort);
+    } else if (mode === 'search') {
+        displayCode(linearSearch);
+    } else {
+        displayCode(bfsTraversal);
+    }
     document.getElementById('search-target').style.display = mode === 'search' ? 'inline-block' : 'none';
 }
 
